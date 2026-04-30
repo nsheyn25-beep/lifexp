@@ -3,7 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LifeXP">
+<meta name="theme-color" content="#0c0c0f">
 <title>LifeXP</title>
+<script>
+// Inline PWA manifest
+const manifest = {
+  name: "LifeXP",
+  short_name: "LifeXP",
+  description: "Прокачай свою жизнь",
+  start_url: "./",
+  display: "standalone",
+  background_color: "#0c0c0f",
+  theme_color: "#0c0c0f",
+  orientation: "portrait-primary",
+  icons: [
+    { src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230c0c0f'/%3E%3Ctext x='256' y='340' font-size='280' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='900' fill='url(%23g)'%3EXP%3C/text%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%237c6bff'/%3E%3Cstop offset='100%25' stop-color='%236bffcc'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E", sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+  ]
+};
+const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
+const url = URL.createObjectURL(blob);
+const link = document.createElement('link');
+link.rel = 'manifest'; link.href = url;
+document.currentScript.after(link);
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -359,7 +385,7 @@ body::after{content:'';position:fixed;bottom:-200px;right:-200px;width:600px;hei
 <body>
 <div class="app">
   <div class="header">
-    <div class="logo">LifeXP <span>v0.7 · SPRINT 4</span></div>
+    <div class="logo">LifeXP <span>v0.8 · SPRINT 4</span></div>
   </div>
 
   <!-- XP bar (always visible) -->
