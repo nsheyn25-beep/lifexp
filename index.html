@@ -216,29 +216,41 @@ body::after{content:'';position:fixed;bottom:-200px;right:-200px;width:600px;hei
 .habit-card{background:var(–surface);border:1px solid var(–border);border-radius:16px;margin-bottom:10px;display:flex;flex-direction:column;transition:border-color .2s;animation:slideIn .3s ease;position:relative;overflow:hidden}
 .habit-card:hover{border-color:var(–border2)}
 .habit-card.done-today{border-color:rgba(107,255,204,.3);background:rgba(107,255,204,.03)}
-.habit-top-row{display:flex;align-items:center;gap:12px;padding:14px 16px}
+.habit-top-row{display:flex;align-items:center;gap:10px;padding:12px 14px;min-width:0}
 
-.habit-check-btn{width:42px;height:42px;border-radius:12px;border:2px solid var(–border2);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:18px;color:var(–text3)}
-.habit-check-btn:hover{border-color:var(–accent3);color:var(–accent3);transform:scale(1.05)}
+.habit-check-btn{width:40px;height:40px;border-radius:12px;border:2px solid var(–border2);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:18px;color:var(–text3)}
+.habit-check-btn:hover{border-color:var(–accent3);color:var(–accent3)}
 .habit-card.done-today .habit-check-btn{background:var(–accent3);border-color:var(–accent3);color:#0c0c0f}
 
-.habit-info{flex:1;min-width:0}
-.habit-name{font-size:14px;font-weight:500;color:var(–text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.habit-info{flex:1;min-width:0;overflow:hidden}
+.habit-name{font-size:14px;font-weight:500;color:var(–text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .habit-card.done-today .habit-name{color:var(–text2)}
-.habit-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.habit-meta{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
 .habit-days-label{font-size:11px;color:var(–text3)}
-.habit-day-dot{display:inline-flex;width:20px;height:20px;border-radius:50%;align-items:center;justify-content:center;font-size:9px;font-weight:700;letter-spacing:0;background:var(–surface2);color:var(–text3);border:1px solid var(–border)}
+.habit-day-dot{display:inline-flex;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;font-size:8px;font-weight:700;background:var(–surface2);color:var(–text3);border:1px solid var(–border)}
 .habit-day-dot.active{background:rgba(124,107,255,.2);color:var(–accent);border-color:rgba(124,107,255,.4)}
-.habit-day-dot.today{border-color:var(–accent);box-shadow:0 0 0 1px var(–accent)}
+.habit-day-dot.today{border-color:var(–accent)}
 
-.habit-streak{display:flex;align-items:center;gap:4px;flex-shrink:0}
-.streak-num{font-family:‘Syne’,sans-serif;font-weight:800;font-size:18px;color:var(–text2);transition:color .2s;line-height:1}
+.habit-streak{display:flex;align-items:center;gap:3px;flex-shrink:0}
+.streak-num{font-family:‘Syne’,sans-serif;font-weight:800;font-size:18px;color:var(–text2);line-height:1}
 .streak-num.hot{color:#ff9f6b}
-.streak-fire{font-size:16px;line-height:1}
-.streak-label{font-size:10px;color:var(–text3);letter-spacing:.5px;margin-top:2px;text-align:center}
+.streak-fire{font-size:14px;line-height:1}
+.streak-label{font-size:9px;color:var(–text3);letter-spacing:.5px;text-align:center}
 
-.habit-actions{display:flex;gap:2px;opacity:0;transition:opacity .15s;flex-shrink:0}
-.habit-card:hover .habit-actions{opacity:1}
+/* Habit right side — just streak + expand */
+.habit-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+
+/* Context menu for habit actions */
+.habit-ctx-menu{position:fixed;z-index:9999;background:var(–surface);border:1px solid var(–border2);border-radius:14px;padding:6px;box-shadow:0 8px 32px rgba(0,0,0,.7);display:none;min-width:160px}
+.habit-ctx-menu.open{display:block}
+.ctx-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:9px;cursor:pointer;font-size:13px;color:var(–text2);transition:background .15s}
+.ctx-item:hover{background:var(–surface2);color:var(–text)}
+.ctx-item.danger{color:var(–danger)}
+.ctx-item.danger:hover{background:rgba(255,107,107,.1)}
+
+/* Drag handle */
+.drag-handle{width:16px;height:20px;display:flex;align-items:center;justify-content:center;color:var(–text3);cursor:grab;flex-shrink:0;font-size:12px;opacity:.4;touch-action:none}
+.habit-card.dragging{opacity:.3;border-style:dashed}
 
 /* HABIT MODAL */
 .days-selector{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
@@ -582,8 +594,39 @@ body::after{content:'';position:fixed;bottom:-200px;right:-200px;width:600px;hei
   <div id="moveTaskDays"></div>
 </div>
 
+<!-- Category modal -->
+
+<div class="modal-overlay" id="catModalOverlay">
+  <div class="modal">
+    <div class="modal-title" id="catModalTitle">Новая категория</div>
+    <input class="modal-input" id="catModalInput" placeholder="Название..." maxlength="40">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeCatModal()">Отмена</button>
+      <button class="btn-confirm" onclick="confirmCatModal()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Habit context menu -->
+
+<div class="habit-ctx-menu" id="habitCtxMenu">
+  <div class="ctx-item" id="ctxRename" onclick="ctxDoRename()">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 2l3 3-8 8H3v-3l8-8z"/></svg>Переименовать
+  </div>
+  <div class="ctx-item" id="ctxStats" onclick="ctxDoStats()">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="3" height="6"/><rect x="6.5" y="4" width="3" height="10"/><rect x="11" y="1" width="3" height="13"/></svg>Статистика
+  </div>
+  <div class="ctx-item danger" id="ctxDelete" onclick="ctxDoDelete()">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,4 13,4"/><path d="M5,4V2h6v2"/><path d="M4,4l1,10h6l1-10"/></svg>Удалить
+  </div>
+</div>
+
 <script>
 // ── Audio ──────────────────────────────────────────────────────────
+window.onerror = function(msg, src, line, col, err) {
+  alert('ERROR: ' + msg + '\nLine: ' + line + '\n' + (err?.stack||''));
+  return false;
+};
 const AC = new (window.AudioContext || window.webkitAudioContext)();
 function beep(freq, dur, type='sine', vol=0.18) {
   const o=AC.createOscillator(), g=AC.createGain();
@@ -1146,12 +1189,13 @@ function toggleHabitDetail(id){
   const detail=card.querySelector('.habit-detail');
   const heatmap=card.querySelector('.habit-heatmap');
   const btn=card.querySelector('.habit-expand-btn');
+  if(!detail||!heatmap||!btn) return;
   const isOpen=detail.classList.contains('open');
   detail.classList.toggle('open',!isOpen);
   heatmap.classList.toggle('open',!isOpen);
   btn.classList.toggle('open',!isOpen);
-  if(!isOpen){ buildHeatmap(id); buildDetailStats(id); }
   btn.innerHTML=isOpen?'▾':'▴';
+  if(!isOpen){ buildHeatmap(id); buildDetailStats(id); }
 }
 
 function buildHeatmap(id){
@@ -1242,8 +1286,7 @@ function buildDetailStats(id){
   for(let i=364;i>=0;i--){
     const d=new Date(today); d.setDate(d.getDate()-i);
     const ds=d.toISOString().slice(0,10);
-    const dow=d.getDay();
-    if(h.days.includes(dow)) allDates.push(ds);
+    if(isScheduledOn(h,ds)) allDates.push(ds);
   }
   allDates.forEach(ds=>{
     if(h.log?.[ds]){ cur2++; maxStreak=Math.max(maxStreak,cur2); }
@@ -1273,7 +1316,7 @@ function buildDetailStats(id){
     for(let d=0;d<7;d++){
       const day=new Date(weekStart); day.setDate(day.getDate()+d);
       if(day>today) continue;
-      if(h.days.includes(day.getDay())){
+      if(isScheduledOn(h, day.toISOString().slice(0,10))){
         scheduled++;
         if(h.log?.[day.toISOString().slice(0,10)]) count++;
       }
@@ -1425,8 +1468,10 @@ function toggleHabit(id){
 }
 
 function renderHabits(){
+  try {
   if(!S.habits) S.habits=[];
   const list=document.getElementById('habitsList');
+  if(!list) return;
   list.innerHTML='';
   const today=todayStr();
   const todayDow=dayOfWeek();
@@ -1481,29 +1526,69 @@ function renderHabits(){
 
       const card=document.createElement('div');
       card.className='habit-card'+(doneTodayFlag?' done-today':(!scheduled?' not-today':''));
-      card.dataset.hid=h.id; card.draggable=true;
-      card.addEventListener('dragstart',()=>{ dragId=h.id; card.classList.add('dragging');
-        document.querySelectorAll('.drop-zone').forEach(z=>z.classList.add('vis')); });
-      card.addEventListener('dragend',()=>{ card.classList.remove('dragging'); dragId=null;
-        document.querySelectorAll('.drop-zone').forEach(z=>z.classList.remove('vis','over')); });
+      card.dataset.hid=h.id;
 
       const topRow=document.createElement('div'); topRow.className='habit-top-row';
 
+      // Drag handle — declared first so touch listeners can reference it
       const handle=document.createElement('div');
       handle.className='drag-handle'; handle.innerHTML='⠿'; handle.title='Перетащить';
       topRow.appendChild(handle);
 
+      // Touch drag via handle
+      let touchDragId=null, touchClone=null, touchTargetCat=null;
+      handle.addEventListener('touchstart',e=>{
+        e.stopPropagation();
+        touchDragId=h.id;
+        card.classList.add('dragging');
+        document.querySelectorAll('.drop-zone').forEach(z=>z.classList.add('vis'));
+        // create ghost
+        touchClone=card.cloneNode(true);
+        touchClone.style.cssText=`position:fixed;opacity:.7;pointer-events:none;z-index:999;width:${card.offsetWidth}px;left:${e.touches[0].clientX-20}px;top:${e.touches[0].clientY-20}px;`;
+        document.body.appendChild(touchClone);
+      },{passive:true});
+      handle.addEventListener('touchmove',e=>{
+        if(!touchDragId) return;
+        const t=e.touches[0];
+        if(touchClone){ touchClone.style.left=(t.clientX-20)+'px'; touchClone.style.top=(t.clientY-20)+'px'; }
+        // detect drop zone under finger
+        touchClone.style.display='none';
+        const el=document.elementFromPoint(t.clientX,t.clientY);
+        touchClone.style.display='';
+        const zone=el?.closest('.drop-zone');
+        document.querySelectorAll('.drop-zone').forEach(z=>z.classList.remove('over'));
+        if(zone){ zone.classList.add('over'); touchTargetCat=zone.closest('.habit-category')?.dataset.cat||null; }
+        else touchTargetCat=null;
+      },{passive:true});
+      handle.addEventListener('touchend',()=>{
+        if(touchClone){ touchClone.remove(); touchClone=null; }
+        card.classList.remove('dragging');
+        document.querySelectorAll('.drop-zone').forEach(z=>z.classList.remove('vis','over'));
+        if(touchDragId&&touchTargetCat){
+          const hb=S.habits.find(h=>h.id===touchDragId);
+          if(hb&&hb.cat!==touchTargetCat){ hb.cat=touchTargetCat; save(); renderHabits(); }
+        }
+        touchDragId=null; touchTargetCat=null;
+      });
+
+      // Desktop drag
+      card.draggable=true;
+      card.addEventListener('dragstart',e=>{ dragId=h.id; card.classList.add('dragging');
+        document.querySelectorAll('.drop-zone').forEach(z=>z.classList.add('vis')); });
+      card.addEventListener('dragend',()=>{ card.classList.remove('dragging'); dragId=null;
+        document.querySelectorAll('.drop-zone').forEach(z=>z.classList.remove('vis','over')); });
+
+      // Check btn
       const chk=document.createElement('button'); chk.className='habit-check-btn';
       chk.innerHTML=doneTodayFlag?'✓':'';
       chk.onclick=()=>toggleHabit(h.id);
       topRow.appendChild(chk);
 
+      // Info
       const info=document.createElement('div'); info.className='habit-info';
       const nameEl=document.createElement('div'); nameEl.className='habit-name';
       nameEl.textContent=h.name;
-      nameEl.ondblclick=e=>{ e.stopPropagation(); startRenameHabit(h.id); };
       info.appendChild(nameEl);
-
       const meta=document.createElement('div'); meta.className='habit-meta';
       const isAlt=h.freq==='alt'||h.days==='alt';
       const isEvery=Array.isArray(h.days)&&h.days.length===7;
@@ -1518,22 +1603,33 @@ function renderHabits(){
       }
       info.appendChild(meta); topRow.appendChild(info);
 
+      // Right side: streak + expand
+      const right=document.createElement('div'); right.className='habit-right';
       const streakEl=document.createElement('div'); streakEl.className='habit-streak';
       streakEl.innerHTML=`<div style="text-align:center"><div class="streak-num${streak>=3?' hot':''}">${streak}</div><div class="streak-label">стрик</div></div><div class="streak-fire">${streak>=3?'🔥':streak>0?'✦':'·'}</div>`;
-      topRow.appendChild(streakEl);
+      right.appendChild(streakEl);
 
-      const actions=document.createElement('div');
-      actions.style.cssText='display:flex;gap:2px;align-items:center;flex-shrink:0';
-      actions.innerHTML=`
-        <button class="icon-btn" onclick="startRenameHabit('${h.id}')" title="Переименовать"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 2l3 3-8 8H3v-3l8-8z"/></svg></button>
-        <button class="icon-btn danger" onclick="deleteHabit('${h.id}')" title="Удалить"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="2" x2="14" y2="14"/><line x1="14" y1="2" x2="2" y2="14"/></svg></button>
-        <button class="habit-expand-btn" onclick="toggleHabitDetail('${h.id}')" title="Статистика">▾</button>`;
-      topRow.appendChild(actions);
+      const expandBtn=document.createElement('button');
+      expandBtn.className='habit-expand-btn';
+      expandBtn.innerHTML='▾'; expandBtn.title='Статистика';
+      expandBtn.onclick=e=>{ e.stopPropagation(); toggleHabitDetail(h.id); };
+      right.appendChild(expandBtn);
+      topRow.appendChild(right);
 
-      if(!scheduled){ const hint=document.createElement('div');
+      // Long press → context menu (works on mobile)
+      let pressTimer=null;
+      topRow.addEventListener('touchstart',e=>{
+        pressTimer=setTimeout(()=>{ openHabitCtx(e.touches[0],h.id); },500);
+      },{passive:true});
+      topRow.addEventListener('touchend',()=>clearTimeout(pressTimer));
+      topRow.addEventListener('touchmove',()=>clearTimeout(pressTimer));
+      topRow.addEventListener('contextmenu',e=>{ e.preventDefault(); openHabitCtx(e,h.id); });
+
+      if(!scheduled){
+        const hint=document.createElement('div');
         hint.style.cssText='position:absolute;top:6px;right:10px;font-size:10px;color:var(--text3)';
-        hint.textContent='не сегодня'; card.style.position='relative'; card.appendChild(hint); }
-
+        hint.textContent='не сегодня'; card.style.position='relative'; card.appendChild(hint);
+      }
       card.appendChild(topRow);
 
       const detail=document.createElement('div'); detail.className='habit-detail';
@@ -1555,34 +1651,62 @@ function renderHabits(){
   addCatBtn.innerHTML='<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg> Новая категория';
   addCatBtn.onclick=addCat;
   list.appendChild(addCatBtn);
+  } catch(err){ console.error('renderHabits error:', err); }
 }
 
 // ── CATEGORY MANAGEMENT ────────────────────────────────────────────
-function addCat(){
-  const name=prompt('Название категории:')?.trim();
-  if(!name) return;
+let catModalMode=null, catModalOldName=null;
+function openCatModal(mode, oldName=''){
+  catModalMode=mode; catModalOldName=oldName;
+  document.getElementById('catModalTitle').textContent=mode==='add'?'Новая категория':'Переименовать';
+  document.getElementById('catModalInput').value=oldName;
+  document.getElementById('catModalOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('catModalInput').focus(),100);
+}
+function closeCatModal(){ document.getElementById('catModalOverlay').classList.remove('open'); }
+document.getElementById('catModalOverlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeCatModal(); });
+document.getElementById('catModalInput').addEventListener('keydown',e=>{ if(e.key==='Enter') confirmCatModal(); });
+function confirmCatModal(){
+  const name=document.getElementById('catModalInput').value.trim(); if(!name) return;
   if(!S.habitCats) S.habitCats=['Общее'];
-  if(!S.habitCats.includes(name)) S.habitCats.push(name);
-  save(); renderHabits();
+  if(catModalMode==='add'){
+    if(!S.habitCats.includes(name)) S.habitCats.push(name);
+  } else {
+    const i=S.habitCats.indexOf(catModalOldName);
+    if(i!==-1) S.habitCats[i]=name;
+    S.habits.forEach(h=>{ if(h.cat===catModalOldName) h.cat=name; });
+  }
+  save(); renderHabits(); closeCatModal();
 }
-function renameCat(oldName){
-  const name=prompt('Новое название:',oldName)?.trim();
-  if(!name||name===oldName) return;
-  if(!S.habitCats) S.habitCats=[oldName];
-  const i=S.habitCats.indexOf(oldName);
-  if(i!==-1) S.habitCats[i]=name;
-  S.habits.forEach(h=>{ if(h.cat===oldName) h.cat=name; });
-  save(); renderHabits();
-}
+function addCat(){ openCatModal('add'); }
+function renameCat(oldName){ openCatModal('rename', oldName); }
 function deleteCat(name){
-  if(name==='Общее'){ alert('Нельзя удалить категорию "Общее"'); return; }
-  if(!confirm(`Удалить категорию "${name}"? Привычки перейдут в "Общее".`)) return;
-  if(!S.habitCats) return;
+  if(name==='Общее'){ showToast('Нельзя удалить "Общее"'); return; }
+  if(!confirm(`Удалить "${name}"? Привычки перейдут в "Общее".`)) return;
   S.habitCats=S.habitCats.filter(c=>c!==name);
   S.habits.forEach(h=>{ if(h.cat===name) h.cat='Общее'; });
   if(!S.habitCats.includes('Общее')) S.habitCats.unshift('Общее');
   save(); renderHabits();
 }
+
+// ── HABIT CONTEXT MENU ─────────────────────────────────────────────
+let ctxHabitId=null;
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.habit-ctx-menu')) closeHabitCtx();
+});
+function closeHabitCtx(){ document.getElementById('habitCtxMenu').classList.remove('open'); ctxHabitId=null; }
+function openHabitCtx(e, id){
+  e.stopPropagation(); e.preventDefault();
+  ctxHabitId=id;
+  const menu=document.getElementById('habitCtxMenu');
+  menu.classList.add('open');
+  const x=Math.min(e.clientX, window.innerWidth-170);
+  const y=Math.min(e.clientY+4, window.innerHeight-150);
+  menu.style.left=x+'px'; menu.style.top=y+'px';
+}
+function ctxDoRename(){ if(!ctxHabitId) return; closeHabitCtx(); startRenameHabit(ctxHabitId); }
+function ctxDoStats(){ if(!ctxHabitId) return; closeHabitCtx(); toggleHabitDetail(ctxHabitId); }
+function ctxDoDelete(){ if(!ctxHabitId) return; closeHabitCtx(); deleteHabit(ctxHabitId); }
 
 // ── MONTH HEATMAP NAV ───────────────────────────────────────────────
 const habitHmOffset={};
